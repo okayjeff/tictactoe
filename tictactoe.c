@@ -16,6 +16,7 @@ struct Move {
 // Game defaults
 int ActivePlayer = X;
 int gameStatus = Started;
+int gameBoard[BOARD_SIZE][BOARD_SIZE] = {0};
 
 const char* getPlayerName(enum CellState activePlayer) {
     switch (activePlayer) {
@@ -40,7 +41,14 @@ int checkForWinner() {
 
 int checkForStalemate() {
     // Are there no available squares?
-    return 0;
+    for (int row = 0; row < BOARD_SIZE; row++) {
+        for (int col = 0; col < BOARD_SIZE; col++) {
+            if (gameBoard[row][col] == Empty) {
+                return 0;
+            }
+        }
+    }
+    return 1;
 }
 
 void checkGameStatus() {
@@ -147,10 +155,9 @@ struct Move getPlayerMove() {
 }
 
 int main() {
-    int gameBoard[BOARD_SIZE][BOARD_SIZE] = {0};
     printGameBoard(gameBoard);
 
-    while (gameStatus != Won || gameStatus != Stalemate) {
+    while (gameStatus == Started) {
         struct Move move = getPlayerMove();
         makeMove(gameBoard, move, ActivePlayer);
     }
