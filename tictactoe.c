@@ -13,8 +13,8 @@ struct Move {
 
 int ActivePlayer = X;
 
-void toggleActivePlayer(enum CellState state) {
-    if (state == X) {
+void toggleActivePlayer(enum CellState lastPlayer) {
+    if (lastPlayer == X) {
         ActivePlayer = O;
     } else {
         ActivePlayer = X;
