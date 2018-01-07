@@ -17,8 +17,16 @@ struct Move {
 int ActivePlayer = X;
 int gameStatus = Started;
 
-void toggleActivePlayer(enum CellState lastPlayer) {
-    if (lastPlayer == X) {
+const char* getPlayerName(enum CellState activePlayer) {
+    switch (activePlayer) {
+        case X: return "X";
+        case O: return "O";
+        case Empty: return "X";
+    }
+}
+
+void toggleActivePlayer(enum CellState lastMovePlayed) {
+    if (lastMovePlayed == X) {
         ActivePlayer = O;
     } else {
         ActivePlayer = X;
@@ -133,7 +141,7 @@ struct Move translateSquareToMove(int square) {
 
 struct Move getPlayerMove() {
     int square;
-    printf("Enter your move (%d): \n", ActivePlayer);
+    printf("Enter your move (%s): \n", getPlayerName(ActivePlayer));
     scanf("%d", &square);
     return translateSquareToMove(square);
 }
