@@ -5,19 +5,45 @@
 #define BOARD_SIZE 3
 
 
+// Data structures
 enum CellState {Empty, X, O};
+enum GameStatus {Started, Won, Stalemate};
 
 struct Move {
     int row, col;
 };
 
+// Game defaults
 int ActivePlayer = X;
+int gameStatus = Started;
 
 void toggleActivePlayer(enum CellState lastPlayer) {
     if (lastPlayer == X) {
         ActivePlayer = O;
     } else {
         ActivePlayer = X;
+    }
+}
+
+int checkForWinner() {
+    // Check for 3 in a row
+    return 0;
+}
+
+int checkForStalemate() {
+    // Are there no available squares?
+    return 0;
+}
+
+void checkGameStatus() {
+    //Check for available squares and 3 in a row...
+    if (checkForWinner() == 1) {
+        gameStatus = Won;
+        printf("We have a winner!\n");
+    }
+    if (checkForStalemate() == 1) {
+        gameStatus = Stalemate;
+        printf("Bummer. No winner today.\n");
     }
 }
 
@@ -85,6 +111,7 @@ int makeMove(int gameBoard[BOARD_SIZE][BOARD_SIZE], struct Move move, enum CellS
         commitMove(gameBoard, move, state);
         toggleActivePlayer(state);
         printGameBoard(gameBoard);
+        checkGameStatus();
         return 1;
     }
     return 0;
@@ -106,7 +133,7 @@ struct Move translateSquareToMove(int square) {
 
 struct Move getPlayerMove() {
     int square;
-    printf("Enter your move: \n");
+    printf("Enter your move (%d): \n", ActivePlayer);
     scanf("%d", &square);
     return translateSquareToMove(square);
 }
@@ -115,8 +142,9 @@ int main() {
     int gameBoard[BOARD_SIZE][BOARD_SIZE] = {0};
     printGameBoard(gameBoard);
 
-    struct Move FakeMove2 = getPlayerMove();
-    makeMove(gameBoard, FakeMove2, ActivePlayer);
-
+    while (gameStatus != Won || gameStatus != Stalemate) {
+        struct Move move = getPlayerMove();
+        makeMove(gameBoard, move, ActivePlayer);
+    }
     return 0;
 }
