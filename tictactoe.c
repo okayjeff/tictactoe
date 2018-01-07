@@ -90,7 +90,7 @@ int makeMove(int gameBoard[BOARD_SIZE][BOARD_SIZE], struct Move move, enum CellS
     return 0;
 }
 
-struct Move translateMove(int square) {
+struct Move translateSquareToMove(int square) {
     // Translate an integer square number to a 
     // move with valid coordinates.
 
@@ -108,7 +108,7 @@ struct Move getPlayerMove() {
     int square;
     printf("Enter your move: \n");
     scanf("%d", &square);
-    return translateMove(square);
+    return translateSquareToMove(square);
 }
 
 int main() {
