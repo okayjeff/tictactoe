@@ -158,8 +158,16 @@ int main() {
     printGameBoard(gameBoard);
 
     while (gameStatus == Started) {
-        struct Move move = getPlayerMove();
-        makeMove(gameBoard, move, ActivePlayer);
+        struct Move playerMove = getPlayerMove();
+        struct Move cpuMove = generateMove();
+        enum CellState moveToPlay = ActivePlayer;
+
+        if (ActivePlayer == X) {
+            makeMove(gameBoard, playerMove, moveToPlay);    
+        } else {
+            makeMove(gameBoard, cpuMove, moveToPlay);
+        }
+        
     }
     return 0;
 }
