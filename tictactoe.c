@@ -16,7 +16,27 @@ struct Move {
 // Game defaults
 int ActivePlayer = X;
 int gameStatus = Started;
-int gameBoard[BOARD_SIZE][BOARD_SIZE] = {0};
+
+void PrintGameBoard(int game_board[BOARD_SIZE][BOARD_SIZE]) {
+    int square_no = 1;  // Counter to track number of squares
+    int board_size = sizeof(game_board[0]) / sizeof(game_board[0][0]);
+
+    for (int row = 0; row < board_size; row++) {
+        for (int col = 0; col < board_size; col++) {
+            int cell = game_board[row][col];
+            if (cell == Empty) {
+                printf("[%d]", square_no);
+            } else if (cell == X) {
+                printf("[x]");
+            } else {
+                printf("[o]");
+            }
+            square_no++;
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
 
 const char* getPlayerName(enum CellState activePlayer) {
     switch (activePlayer) {
@@ -34,16 +54,16 @@ void toggleActivePlayer(enum CellState lastMovePlayed) {
     }
 }
 
-int checkForWinner() {
+int checkForWinner(int game_board[BOARD_SIZE][BOARD_SIZE]) {
     // Check for 3 in a row
     return 0;
 }
 
-int checkForStalemate() {
+int checkForStalemate(int game_board[BOARD_SIZE][BOARD_SIZE]) {
     // Are there no available squares?
     for (int row = 0; row < BOARD_SIZE; row++) {
         for (int col = 0; col < BOARD_SIZE; col++) {
-            if (gameBoard[row][col] == Empty) {
+            if (game_board[row][col] == Empty) {
                 return 0;
             }
         }
@@ -51,35 +71,16 @@ int checkForStalemate() {
     return 1;
 }
 
-void checkGameStatus() {
+void checkGameStatus(int game_board[BOARD_SIZE][BOARD_SIZE]) {
     //Check for available squares and 3 in a row...
-    if (checkForWinner() == 1) {
+    if (checkForWinner(game_board) == 1) {
         gameStatus = Won;
         printf("We have a winner!\n");
     }
-    if (checkForStalemate() == 1) {
+    if (checkForStalemate(game_board) == 1) {
         gameStatus = Stalemate;
         printf("Bummer. No winner today.\n");
     }
-}
-
-void printGameBoard(int board[BOARD_SIZE][BOARD_SIZE]) {
-    int square_no = 1;  // Counter to track number of squares
-    for (int row = 0; row < BOARD_SIZE; row++) {
-        for (int col = 0; col < BOARD_SIZE; col++) {
-            int cell = board[row][col];
-            if (cell == Empty) {
-                printf("[%d]", square_no);
-            } else if (cell == X) {
-                printf("[x]");
-            } else {
-                printf("[o]");
-            }
-            square_no++;
-        }
-        printf("\n");
-    }
-    printf("\n");
 }
 
 int checkForLegalMove(int gameBoard[BOARD_SIZE][BOARD_SIZE], struct Move move) {
@@ -126,8 +127,8 @@ int makeMove(int gameBoard[BOARD_SIZE][BOARD_SIZE], struct Move move, enum CellS
     if (legalMove == 1) {
         commitMove(gameBoard, move, state);
         toggleActivePlayer(state);
-        printGameBoard(gameBoard);
-        checkGameStatus();
+        PrintGameBoard(gameBoard);
+        checkGameStatus(gameBoard);
         return 1;
     }
     return 0;
@@ -154,20 +155,23 @@ struct Move getPlayerMove() {
     return translateSquareToMove(square);
 }
 
+
+
 int main() {
-    printGameBoard(gameBoard);
+    // Create a board
+    int game_board[BOARD_SIZE][BOARD_SIZE];
+    PrintGameBoard(game_board);
 
     while (gameStatus == Started) {
-        struct Move playerMove = getPlayerMove();
-        struct Move cpuMove = generateMove();
-        enum CellState moveToPlay = ActivePlayer;
+        
 
         if (ActivePlayer == X) {
-            makeMove(gameBoard, playerMove, moveToPlay);    
+            struct Move playerMove = getPlayerMove();
+            makeMove(game_board, playerMove, ActivePlayer);    
         } else {
-            makeMove(gameBoard, cpuMove, moveToPlay);
+            struct Move cpuMove = generateMove();
+            makeMove(game_board, cpuMove, ActivePlayer);
         }
-        
     }
     return 0;
 }
