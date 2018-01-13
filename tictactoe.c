@@ -58,7 +58,7 @@ int TranslateMoveToSquare(struct Move move) {
     return square;
 }
 
-void Toggleactive_player(enum square_state lastMovePlayed) {
+void ToggleActivePlayer(enum square_state lastMovePlayed) {
     if (lastMovePlayed == X) {
         active_player = O;
     } else {
@@ -101,9 +101,9 @@ int checkForLegalMove(board_t board, struct Move move) {
 
     if (0 <= row && row < BSIZE) {
         if (0 <= col && col < BSIZE) {
-            int cell = board[move.row][move.col];
+            int square = board[move.row][move.col];
 
-            if (cell != Empty) {
+            if (square != Empty) {
                 printf("Square already taken. Make another move.\n");
                 return 0;
             }
@@ -135,7 +135,7 @@ int MakeMove(board_t board, struct Move move, enum square_state state) {
     int legalMove = checkForLegalMove(board, move);
     if (legalMove) {
         commitMove(board, move, state);
-        Toggleactive_player(state);
+        ToggleActivePlayer(state);
         PrintGameBoard(board);
         CheckGameStatus(board);
         return 1;
