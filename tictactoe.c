@@ -39,7 +39,7 @@ void PrintGameBoard(board_t board) {
     printf("\n");
 }
 
-struct Move translateSquareToMove(int square) {
+struct Move TranslateSquareToMove(int square) {
     // Translate an integer square number to a 
     // move with valid coordinates.
 
@@ -147,14 +147,14 @@ struct Move GetPlayerMove() {
     int square;
     printf("Your move. Choose an available square 1-9.\n");
     scanf("%d", &square);
-    return translateSquareToMove(square);
+    return TranslateSquareToMove(square);
 }
 
 int main() {
     board_t board = {0};
     active_player = X;
     game_status = Started;
-    
+
     PrintGameBoard(board);
 
     while (game_status == Started) {
