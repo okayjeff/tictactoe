@@ -6,7 +6,7 @@
 
 
 // Data structures
-enum CellState {Empty, X, O};
+enum square_state {Empty, X, O};
 enum game_status {Started, Won, Stalemate};
 
 typedef int board_t[BSIZE][BSIZE];
@@ -15,9 +15,9 @@ struct Move {
     int row, col;
 };
 
-// Game defaults
-int ActivePlayer = X;
-int game_status = Started;
+// Game vars
+int active_player;;
+int game_status;
 
 void PrintGameBoard(board_t board) {
     printf("\n");
@@ -58,11 +58,11 @@ int TranslateMoveToSquare(struct Move move) {
     return square;
 }
 
-void ToggleActivePlayer(enum CellState lastMovePlayed) {
+void Toggleactive_player(enum square_state lastMovePlayed) {
     if (lastMovePlayed == X) {
-        ActivePlayer = O;
+        active_player = O;
     } else {
-        ActivePlayer = X;
+        active_player = X;
     }
 }
 
@@ -114,7 +114,7 @@ int checkForLegalMove(board_t board, struct Move move) {
     return 0;
 }
 
-void commitMove(board_t board, struct Move move, enum CellState state) {
+void commitMove(board_t board, struct Move move, enum square_state state) {
     board[move.row][move.col] = state;
 }
 
@@ -131,11 +131,11 @@ struct Move generateMove() {
     return move;
 }
 
-int MakeMove(board_t board, struct Move move, enum CellState state) {
+int MakeMove(board_t board, struct Move move, enum square_state state) {
     int legalMove = checkForLegalMove(board, move);
     if (legalMove) {
         commitMove(board, move, state);
-        ToggleActivePlayer(state);
+        Toggleactive_player(state);
         PrintGameBoard(board);
         CheckGameStatus(board);
         return 1;
@@ -151,17 +151,19 @@ struct Move GetPlayerMove() {
 }
 
 int main() {
-    // Create a board
     board_t board = {0};
+    active_player = X;
+    game_status = Started;
+    
     PrintGameBoard(board);
 
     while (game_status == Started) {
-        if (ActivePlayer == X) {
+        if (active_player == X) {
             struct Move playerMove = GetPlayerMove();
-            MakeMove(board, playerMove, ActivePlayer);    
+            MakeMove(board, playerMove, active_player);    
         } else {
             struct Move cpuMove = generateMove();
-            MakeMove(board, cpuMove, ActivePlayer);
+            MakeMove(board, cpuMove, active_player);
         }
     }
     return 0;
