@@ -15,6 +15,11 @@ struct Move {
     int row, col;
 };
 
+typedef struct {
+    int row, col;
+    enum {X, O} player;
+} move_t;
+
 // Game vars
 int active_player;;
 int game_status;
