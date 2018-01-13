@@ -132,9 +132,6 @@ struct Move generateMove() {
 }
 
 int MakeMove(board_t board, struct Move move, enum CellState state) {
-    int row = move.row;
-    int col = move.col;
-
     int legalMove = checkForLegalMove(board, move);
     if (legalMove) {
         commitMove(board, move, state);
