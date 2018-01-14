@@ -90,7 +90,7 @@ int CheckForWinner(board_t board) {
             } 
         }
     }
-    
+    // Check arrays for any winning combination of squares...
     return 0;
 }
 
