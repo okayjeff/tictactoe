@@ -6,22 +6,17 @@
 
 
 // Data structures
-enum square_state {Empty, X, O};
 enum game_status {Started, Won, Stalemate};
 
 typedef int board_t[BSIZE][BSIZE];
 
-struct Move {
-    int row, col;
-};
-
 typedef struct {
     int row, col;
-    enum {X, O} player;
+    enum {Empty, X, O} player;
 } move_t;
 
 // Game vars
-int active_player;;
+int active_player;
 int game_status;
 
 void PrintGameBoard(board_t board) {
@@ -29,13 +24,13 @@ void PrintGameBoard(board_t board) {
     int square_no = 1; // Counter to track number of squares
     for (int row = 0; row < BSIZE; row++) {
         for (int col = 0; col < BSIZE; col++) {
-            int square = board[row][col];
-            if (square == Empty) {
-                printf("[%d]", square_no);
-            } else if (square == X) {
+            int square = board[row][col];                
+            if (square == X) {
                 printf("[x]");
-            } else {
+            } else if (square == O) {
                 printf("[o]");
+            } else {
+                printf("[%i]", square_no);
             }
             square_no++;
         }
@@ -44,39 +39,62 @@ void PrintGameBoard(board_t board) {
     printf("\n");
 }
 
-struct Move TranslateSquareToMove(int square) {
+move_t TranslateSquareToMove(int square_no) {
     // Translate an integer square number to a 
     // move with valid coordinates.
 
     // Whole number is the row; modulus the columns.
-    int indexSquare = square - 1;  // So we can index on the board array
-    double position = indexSquare/BSIZE;
+    int index_square = square_no - 1;  // So we can index on the board array
+    double position = index_square/BSIZE;
 
     int row = (int)position;
-    int col = indexSquare % BSIZE;
-    struct Move move = {row, col};
+    int col = index_square % BSIZE;
+    move_t move = {row, col, active_player};
     return move;
 }
 
-int TranslateMoveToSquare(struct Move move) {
+int TranslateMoveToSquare(move_t move) {
     int square = 1 + (BSIZE * move.row) + move.col;
     return square;
 }
 
-void ToggleActivePlayer(enum square_state lastMovePlayed) {
-    if (lastMovePlayed == X) {
+void ToggleActivePlayer(player) {
+    if (player == X) {
         active_player = O;
     } else {
         active_player = X;
     }
 }
 
-int checkForWinner(board_t board) {
-    // Check for 3 in a row
+int CheckForWinner(board_t board) {
+    // Get all the square numbers each player occupies,
+    // translate them to moves and then determine if
+    // any player has 3 in a row.
+    int x_squares[BSIZE*BSIZE];
+    int o_squares[BSIZE*BSIZE];
+    int x_nxt_pos = 0;  // Keep track of next free pos in arr
+    int o_nxt_pos = 0;  // Keep track of next free pos in arr
+
+    for (int row = 0; row < BSIZE; row++) {
+        for (int col = 0; col < BSIZE; col++) {
+            if (board[row][col] == X) {
+                move_t move = {row, col, active_player};
+                int sq_no = TranslateMoveToSquare(move);
+                x_squares[x_nxt_pos] = sq_no;
+                x_nxt_pos++;
+            } else if (board[row][col] == O) {
+                move_t move = {row, col, active_player};
+                int sq_no = TranslateMoveToSquare(move);
+                o_squares[o_nxt_pos] = sq_no;
+                o_nxt_pos++;
+            } 
+        }
+    }
+    
     return 0;
 }
 
-int checkForStalemate(board_t board) {
+int CheckForStalemate(board_t board) {
     // Are there no available squares?
     for (int row = 0; row < BSIZE; row++) {
         for (int col = 0; col < BSIZE; col++) {
@@ -90,17 +108,17 @@ int checkForStalemate(board_t board) {
 
 void CheckGameStatus(board_t board) {
     //Check for available squares and 3 in a row...
-    if (checkForWinner(board) == 1) {
+    if (CheckForWinner(board) == 1) {
         game_status = Won;
         printf("We have a winner!\n");
     }
-    if (checkForStalemate(board) == 1) {
+    if (CheckForStalemate(board) == 1) {
         game_status = Stalemate;
         printf("Bummer. No winner today.\n");
     }
 }
 
-int checkForLegalMove(board_t board, struct Move move) {
+int CheckForLegalMove(board_t board, move_t move) {
     int row = move.row;
     int col = move.col;
 
@@ -119,12 +137,12 @@ int checkForLegalMove(board_t board, struct Move move) {
     return 0;
 }
 
-void commitMove(board_t board, struct Move move, enum square_state state) {
-    board[move.row][move.col] = state;
+void commitMove(board_t board, move_t move) {
+    board[move.row][move.col] = move.player;
 }
 
-struct Move generateMove() {
-    int seed = rand() % 1000;
+move_t generateMove() {
+    int seed = rand() % 100000;
 
     srand(time(NULL) + seed);
     int row = rand() % BSIZE;
@@ -132,15 +150,15 @@ struct Move generateMove() {
     srand(time(NULL) + seed);
     int col = rand() % BSIZE;
 
-    struct Move move = {row, col};
+    move_t move = {row, col, active_player};
     return move;
 }
 
-int MakeMove(board_t board, struct Move move, enum square_state state) {
-    int legalMove = checkForLegalMove(board, move);
+int MakeMove(board_t board, move_t move) {
+    int legalMove = CheckForLegalMove(board, move);
     if (legalMove) {
-        commitMove(board, move, state);
-        ToggleActivePlayer(state);
+        commitMove(board, move);
+        ToggleActivePlayer(active_player);
         PrintGameBoard(board);
         CheckGameStatus(board);
         return 1;
@@ -148,7 +166,7 @@ int MakeMove(board_t board, struct Move move, enum square_state state) {
     return 0;
 }
 
-struct Move GetPlayerMove() {
+move_t GetPlayerMove() {
     int square;
     printf("Your move. Choose an available square 1-9.\n");
     scanf("%d", &square);
@@ -164,11 +182,14 @@ int main() {
 
     while (game_status == Started) {
         if (active_player == X) {
-            struct Move playerMove = GetPlayerMove();
-            MakeMove(board, playerMove, active_player);    
+            move_t player_move = GetPlayerMove();
+            MakeMove(board, player_move);
         } else {
-            struct Move cpuMove = generateMove();
-            MakeMove(board, cpuMove, active_player);
+            move_t cpu_move = generateMove();
+            int move_success = MakeMove(board, cpu_move);
+            if (move_success) {
+                printf("O played %d.\n", TranslateMoveToSquare(cpu_move));
+            }
         }
     }
     return 0;
