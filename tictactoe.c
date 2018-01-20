@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define BSIZE 3
 
@@ -65,36 +66,63 @@ void ToggleActivePlayer(player) {
     }
 }
 
-int CheckForWinner(board_t board) {
-    // Get all the square numbers each player occupies,
-    // translate them to moves and then determine if
-    // any player has 3 in a row.
-    int x_squares[BSIZE*BSIZE];
-    int o_squares[BSIZE*BSIZE];
-    int x_nxt_pos = 0;  // Keep track of next free pos in arr
-    int o_nxt_pos = 0;  // Keep track of next free pos in arr
+int CheckForWinner(board_t board, move_t last_move) {
+    int row = last_move.row;
+    int col = last_move.col;
+    int player = last_move.player;
+    int size = BSIZE;
+    int won = 0;
 
-    for (int row = 0; row < BSIZE; row++) {
-        for (int col = 0; col < BSIZE; col++) {
-            if (board[row][col] == X) {
-                move_t move = {row, col, active_player};
-                int sq_no = TranslateMoveToSquare(move);
-                x_squares[x_nxt_pos] = sq_no;
-                x_nxt_pos++;
-            } else if (board[row][col] == O) {
-                move_t move = {row, col, active_player};
-                int sq_no = TranslateMoveToSquare(move);
-                o_squares[o_nxt_pos] = sq_no;
-                o_nxt_pos++;
-            } 
-        }
+    // Check rows
+    for (int i = 0; i < size; i++) {
+        if (board[row][i] != player) {
+	    break;
+	}
+	if (i == size-1) {
+            won = 1;
+	}
     }
-    // Check arrays for any winning combination of squares...
-    return 0;
+
+    // Check cols
+    for (int i = 0; i < size; i++) {
+        if (board[i][col] != player) {
+	    break;
+        }
+	if (i == size-1) {
+	    won = 1;
+	}
+    }
+    
+
+    /* Check Diagonals
+     * Check if move was on main diagonal or anti diagonal and
+     * execute the appropriate check. */
+    if (row == col) {
+        for (int i = 0; i < size; i++) {
+	    if (board[i][i] != player) {
+	        break;		    
+	    }
+	    if (i == size-1) {
+	        won = 1;
+	    }
+	}
+    }
+
+    if (row + col == size - 1) {
+        for (int i = 0; i < size; i++) {
+	    if (board[size-(i+1)][i] != player) {
+	        break;
+	    }
+	    if (i == size-1) {
+	        won = 1;
+	    }
+	}
+    }
+
+    return won;
 }
 
 int CheckForStalemate(board_t board) {
-    // Are there no available squares?
     for (int row = 0; row < BSIZE; row++) {
         for (int col = 0; col < BSIZE; col++) {
             if (board[row][col] == Empty) {
@@ -105,15 +133,20 @@ int CheckForStalemate(board_t board) {
     return 1;
 }
 
-void CheckGameStatus(board_t board) {
-    //Check for available squares and 3 in a row...
-    if (CheckForWinner(board) == 1) {
+void CheckGameStatus(board_t board, move_t last_move) {
+    if (CheckForWinner(board, last_move)) {
+	char* winner;
         game_status = Won;
-        printf("We have a winner!\n");
+	if (last_move.player == X) {
+	    strcpy(winner, "X");
+	} else {
+	    strcpy(winner, "O");
+	}
+        printf("Game Over: %s won!\n", winner);
     }
-    if (CheckForStalemate(board) == 1) {
+    if (CheckForStalemate(board)) {
         game_status = Stalemate;
-        printf("Bummer. No winner today.\n");
+        printf("Game Over: Draw.\n");
     }
 }
 
@@ -166,7 +199,7 @@ int MakeMove(board_t board, move_t move) {
         commitMove(board, move);
         ToggleActivePlayer(active_player);
         PrintGameBoard(board);
-        CheckGameStatus(board);
+        CheckGameStatus(board, move);
         return 1;
     }
     return 0;
