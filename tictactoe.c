@@ -143,7 +143,7 @@ void commitMove(board_t board, move_t move) {
 }
 
 /* Choose the first available square */
-move_t generateMove(board_t board) {
+move_t GenerateMove(board_t board) {
     move_t move;
     for (int row = 0; row < BSIZE; row++) {
         for (int col = 0; col < BSIZE; col++) {
@@ -191,7 +191,7 @@ int main() {
             move_t player_move = GetPlayerMove();
             MakeMove(board, player_move);
         } else {
-            move_t cpu_move = generateMove(board);
+            move_t cpu_move = GenerateMove(board);
             MakeMove(board, cpu_move);
         }
     }
