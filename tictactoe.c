@@ -171,7 +171,7 @@ int CheckForLegalMove(board_t board, move_t move) {
     return 0;
 }
 
-void commitMove(board_t board, move_t move) {
+void CommitMove(board_t board, move_t move) {
     board[move.row][move.col] = move.player;
 }
 
@@ -196,7 +196,7 @@ move_t GenerateMove(board_t board) {
 int MakeMove(board_t board, move_t move) {
     int legalMove = CheckForLegalMove(board, move);
     if (legalMove) {
-        commitMove(board, move);
+        CommitMove(board, move);
         ToggleActivePlayer(active_player);
         PrintGameBoard(board);
         CheckGameStatus(board, move);
