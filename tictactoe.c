@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 #define BSIZE 3
 
@@ -47,7 +46,7 @@ move_t TranslateSquareToMove(int square_no) {
     int index_square = square_no - 1;  // So we can index on the board array
     double position = index_square/BSIZE;
 
-    int row = (int)position;
+    int row = position;
     int col = index_square % BSIZE;
     move_t move = {row, col, active_player};
     return move;
@@ -127,7 +126,9 @@ int CheckForLegalMove(board_t board, move_t move) {
             int square = board[move.row][move.col];
 
             if (square != Empty) {
-                printf("Square already taken. Make another move.\n");
+		if (active_player == X) {    
+                    printf("Square already taken. Make another move.\n");
+		}
                 return 0;
             }
             return 1;
@@ -141,16 +142,21 @@ void commitMove(board_t board, move_t move) {
     board[move.row][move.col] = move.player;
 }
 
-move_t generateMove() {
-    int seed = rand() % 100000;
+/* Choose the first available square */
+move_t generateMove(board_t board) {
+    move_t move;
+    for (int row = 0; row < BSIZE; row++) {
+        for (int col = 0; col < BSIZE; col++) {
+	    if (board[row][col] == Empty) {
+		move.row = row;
+		move.col = col;
+		move.player = active_player;
+		printf("O plays square %d\n", TranslateMoveToSquare(move));
+	        row = col = BSIZE; break;  // Break out of nested loops.
+	    }
+	}
+    }
 
-    srand(time(NULL) + seed);
-    int row = rand() % BSIZE;
-
-    srand(time(NULL) + seed);
-    int col = rand() % BSIZE;
-
-    move_t move = {row, col, active_player};
     return move;
 }
 
@@ -185,11 +191,8 @@ int main() {
             move_t player_move = GetPlayerMove();
             MakeMove(board, player_move);
         } else {
-            move_t cpu_move = generateMove();
-            int move_success = MakeMove(board, cpu_move);
-            if (move_success) {
-                printf("O played %d.\n", TranslateMoveToSquare(cpu_move));
-            }
+            move_t cpu_move = generateMove(board);
+            MakeMove(board, cpu_move);
         }
     }
     return 0;
